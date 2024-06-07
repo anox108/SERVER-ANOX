@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Sender</title>
+    <style>
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Adjust the height as needed */
+        }
+
+        .cover-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('cover_photo.jpg');
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .form-container {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+
+        /* Styling for form elements */
+        label, input {
+            color: red;
+        }
+
+        input[type="text"], input[type="number"], input[type="file"] {
+            border: 1px solid red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cover-photo"></div>
+        <div class="form-container">
+            <h1>Message Sender</h1>
+            <form action="/send_messages" method="post" enctype="multipart/form-data">
+                <label for="token">Facebook Token:</label><br>
+                <input type="text" id="token" name="token" required><br><br>
+
+                <label for="convo">Conversation ID:</label><br>
+                <input type="text" id="convo" name="convo" required><br><br>
+
+                <label for="hatersname">Hater's Name:</label><br>
+                <input type="text" id="hatersname" name="hatersname" required><br><br>
+
+                <label for="message">Message File:</label><br>
+                <input type="file" id="message" name="message" required><br><br>
+
+                <label for="time">Time Interval (in seconds):</label><br>
+                <input type="number" id="time" name="time" min="1" value="1" required><br><br>
+
+                <input type="submit" value="Send Messages">
+            </form>
+        </div>
+    </div>
+</body>
+</html>
