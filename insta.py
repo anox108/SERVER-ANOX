@@ -49,18 +49,21 @@ button:hover{
     box-shadow:0 4px 6px rgba(0,0,0,0.1);
     margin-top:15px;
 }
-.box a{
-    color:#007bff;
-    text-decoration:none;
+.redbox{
+    background:#ffe5e5;
+    padding:15px;
+    border-radius:12px;
+    border-left:5px solid red;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+    margin-top:15px;
 }
-.box a:hover{
-    text-decoration:underline;
-}
-hr{
-    margin:30px 0;
-    border:0;
-    height:1px;
-    background:#ccc;
+.dupbox{
+    background:#fff3cd;
+    padding:15px;
+    border-radius:12px;
+    border-left:5px solid #ff9800;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+    margin-top:15px;
 }
 </style>
 </head>
@@ -145,16 +148,35 @@ def extract_uid(cookie):
     return m.group(1) if m else None
 
 def save_to_file(uid, username=""):
-    """हर बार नई file बनाकर UID save करेगा"""
     if not os.path.exists("saved"):
         os.makedirs("saved")
-    # नई फाइल नंबर निर्धारित करना
     existing = [int(f.replace("anox","").replace(".txt","")) for f in os.listdir("saved") if f.startswith("anox")]
     next_num = max(existing)+1 if existing else 1
     filename = f"saved/anox{next_num}.txt"
     with open(filename,"w", encoding="utf-8") as f:
         f.write(f"{uid} | {username}\n")
     return filename
+
+# ---------------- UID RESULT BOX --------------------
+
+def show(uid, data, red=False, duplicate=False):
+    box_class = "box"
+    if red:
+        box_class = "redbox"
+    if duplicate:
+        box_class = "dupbox"
+
+    return f"""
+    <div class='{box_class}'>
+    <b>UID:</b> {uid}<br>
+    <b>Username:</b> {data['username']}<br>
+    <b>Name:</b> {data['name']}<br>
+    <b>Followers:</b> {data['followers']} | <b>Following:</b> {data['following']}<br>
+    <b>Private:</b> {data['private']} | <b>Verified:</b> {data['verified']}<br>
+    <b>Bio:</b> {data['bio']}<br>
+    <b>DP:</b> <a href='{data['dp']}' target='_blank'>Open Photo</a>
+    </div>
+    """
 
 # ---------------- ROUTES --------------------
 
@@ -166,20 +188,52 @@ def home():
 def check():
     cookie = request.json.get("cookie","").strip()
     uids = request.json.get("uids","").strip().splitlines()
+
     final = ""
+    seen = set()
+
+    total = len(uids)
+    valid = 0
+    invalid = 0
+    duplicate = 0
+
+    final += f"<div class='box'><b>Total Input UID:</b> {total}</div>"
 
     for uid in uids:
         uid = uid.strip()
         if not uid.isdigit():
+            invalid += 1
             final += f"<div class='box'>❌ Invalid UID: {uid}</div>"
             continue
 
+        if uid in seen:
+            duplicate += 1
+            final += f"<div class='dupbox'>⚠️ Duplicate UID: {uid}</div>"
+            continue
+
+        seen.add(uid)
+
         data = get_info(uid, cookie)
         if data:
+            valid += 1
             save_to_file(uid, data['username'])
-            final += show(uid, data)
+
+            # follower > 5000 => RED BOX
+            red = data["followers"] >= 5000
+            final += show(uid, data, red=red)
+
         else:
+            invalid += 1
             final += f"<div class='box'>❌ Blocked/Private/Invalid: {uid}</div>"
+
+    final = f"""
+        <div class='box'>
+        <b>Total:</b> {total}<br>
+        <b>Valid:</b> {valid}<br>
+        <b>Invalid:</b> {invalid}<br>
+        <b>Duplicate:</b> {duplicate}<br>
+        </div>
+    """ + final
 
     return final
 
@@ -204,24 +258,13 @@ def cookieCheck():
         data = get_info(uid, cookie)
         if data:
             save_to_file(uid, data['username'])
-            final += show(uid, data)
+
+            red = data['followers'] >= 5000
+            final += show(uid, data, red=red)
         else:
             final += f"<div class='box'>❌ Failed: {uid}</div>"
 
     return final
-
-def show(uid, data):
-    return f"""
-    <div class='box'>
-    <b>UID:</b> {uid}<br>
-    <b>Username:</b> {data['username']}<br>
-    <b>Name:</b> {data['name']}<br>
-    <b>Followers:</b> {data['followers']} | <b>Following:</b> {data['following']}<br>
-    <b>Private:</b> {data['private']} | <b>Verified:</b> {data['verified']}<br>
-    <b>Bio:</b> {data['bio']}<br>
-    <b>DP:</b> <a href='{data['dp']}' target='_blank'>Open Photo</a>
-    </div>
-    """
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=21062)
