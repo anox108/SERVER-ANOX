@@ -119,7 +119,7 @@ def get_info(uid, cookie):
     headers = {
         "User-Agent": "Instagram 297.0.0.34.109 Android",
         "Accept": "*/*",
-        "Cookie": cookie
+        "Cookie": "ds_user_id=72739953681; sessionid=72739953681%3A3a45vofdEUW42p%3A7%3AAYgeS-x1ngXw4ze1_cXHLvYwYyS8pNFwtIfTeevUVA"
     }
     url = f"https://i.instagram.com/api/v1/users/{uid}/info/"
     try:
