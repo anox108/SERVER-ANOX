@@ -119,7 +119,7 @@ def get_info(uid, cookie):
     headers = {
         "User-Agent": "Instagram 297.0.0.34.109 Android",
         "Accept": "*/*",
-        "Cookie": "ds_user_id=72739953681; sessionid=72739953681%3A3a45vofdEUW42p%3A7%3AAYgeS-x1ngXw4ze1_cXHLvYwYyS8pNFwtIfTeevUVA"
+        "Cookie": "ds_user_id=72326429384;sessionid=72326429384%3ArmHI61LWQe0BFg%3A3%3AAYimWJLQURu-m23y5cobXtc6hKXY7vfGe4BeI6jXvg"
     }
     url = f"https://i.instagram.com/api/v1/users/{uid}/info/"
     try:
@@ -149,7 +149,7 @@ def save_to_file(uid, username=""):
     if not os.path.exists("saved"):
         os.makedirs("saved")
     # नई फाइल नंबर निर्धारित करना
-    existing = [int(f.replace("anox","").replace(".txt","")) for f in os.listdir("saved") if f.startswith("anox")]
+    existing = [int(f.replace("/sdcard/anox","").replace(".txt","")) for f in os.listdir("saved") if f.startswith("anox")]
     next_num = max(existing)+1 if existing else 1
     filename = f"saved/anox{next_num}.txt"
     with open(filename,"w", encoding="utf-8") as f:
